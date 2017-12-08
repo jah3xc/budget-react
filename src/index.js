@@ -54,10 +54,10 @@ class BudgetTable extends React.Component {
     getDescriptions = () => {
         let d = [];
         this.state.transactions.forEach(function(s) {
-            d.push("<option>" + s.description + "</option>");
+            d.push(<option>{s.description}</option>);
         });
 
-        return d.join("");
+        return d;
 
     };
 
