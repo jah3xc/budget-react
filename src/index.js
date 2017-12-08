@@ -6,7 +6,7 @@ import './index.css'
 class BudgetTable extends React.Component {
     constructor(props) {
         super(props);
-        var t = null;
+        let t = null;
         if (localStorage.getItem("transactions") != null) {
             t = JSON.parse(localStorage.getItem("transactions"));
         }
@@ -19,24 +19,62 @@ class BudgetTable extends React.Component {
         }
     }
 
-    getDescriptions() {
-        var d = [];
+    setLocalStorage = () => {
+        localStorage.setItem("transactions", JSON.stringify(this.state.transactions));
+        window.location.reload(true);
+    };
+
+    deleteTransaction = () => {
+        let d = document.getElementById("description_to_delete").value;
+        let s = [];
+        this.state.transactions.forEach(function(t) {
+            if (t.description !== d) {
+                s.push(t);
+            }
+        });
+
+        this.state.transactions = s;
+        this.setLocalStorage();
+
+    };
+
+    addTransaction = () => {
+        let d = document.getElementById("new_d").value;
+        let a = document.getElementById("new_a").value;
+        let t = {
+            "description" : d,
+            "amount": a
+        };
+
+        this.state.transactions.push(t);
+        this.setLocalStorage()
+
+    };
+
+    getDescriptions = () => {
+        let d = [];
         this.state.transactions.forEach(function(s) {
             d.push("<option>" + s.description + "</option>");
         });
 
         return d.join("");
 
-    }
+    };
 
-    getRows() {
-        var r = "";
-        for(var i = 0; i < this.state.transactions.length; i++) {
-            r += (<TransactionRow description={this.state.transactions[i].description} amount={this.state.transactions[i].amount}/>)
+    getRows = (i) => {
+        let r = "";
+        let p = [];
+        for(let i = 0; i < this.state.transactions.length; i++) {
+
+            let d = this.state.transactions[i].description;
+            let a = this.state.transactions[i].amount;
+            console.log(d);
+            r =  <tr><td> {String(d)} </td><td>{String(a)}</td></tr>;
+            p.push(r)
         }
 
-        return r;
-    }
+        return p;
+    };
 
     render() {
 
@@ -61,10 +99,11 @@ class BudgetTable extends React.Component {
 
 class TransactionRow extends React.Component {
     render() {
+        console.log("HI" + this.props.transaction);
         return (
             <tr>
-                <td>{this.props.description}</td>
-                <td>{this.props.amount}</td>
+                <td>{this.props.transaction.description}</td>
+                <td>{this.props.transaction.amount}</td>
             </tr>
         )
     }
@@ -73,7 +112,7 @@ class TransactionRow extends React.Component {
 class Button extends React.Component {
     render() {
         return (
-            <button className={this.props.style} onClick={this.props.onClick()}>{this.props.text}</button>
+            <button className={this.props.style} onClick={this.props.onClick}>{this.props.text}</button>
         )
     }
 }
@@ -81,13 +120,14 @@ class Button extends React.Component {
 
 class AddTransaction extends React.Component {
     render() {
+        let bt = new BudgetTable([]);
         return(
             <div>
                 <label className="control-label">Description</label>
-                <input className="form-control" />
+                <input className="form-control" id={"new_d"}/>
                 <label className="control-label">Amount</label>
-                <input className="form-control" type="number" />
-                <button className="btn btn-primary">Add Transaction</button>
+                <input className="form-control" type="number" id={"new_a"} />
+                <Button style={"btn btn-primary"} onClick={bt.addTransaction} text={"Add Transaction"} />
 
             </div>
         )
@@ -96,44 +136,21 @@ class AddTransaction extends React.Component {
 
 class DeleteTransaction extends React.Component {
     render() {
-        var bt = new BudgetTable([]);
-        var d = bt.getDescriptions();
+        let bt = new BudgetTable([]);
+        let d = bt.getDescriptions();
         return(
             <div>
                 <label className="control-label">Choose a Transaction: </label>
-                <select className="form-control">
+                <select className="form-control" id={"description_to_delete"}>
                     {d}
                 </select>
-                <button className="btn btn-primary">Delete Transaction</button>
+                <Button style={"btn btn-primary"} onClick={bt.deleteTransaction} text={"Delete Transaction"} />
 
             </div>
         )
     }
 
 
-}
-
-class BudgetControls extends React.Component {
-    addTransaction() {
-        alert("ADD")
-    }
-
-    deleteTransaction() {
-        alert("DELETE")
-    }
-
-    render() {
-        return (
-            <div>
-                <div className="form-group">
-                    {<Button style={"btn btn-primary"} onClick={() => this.addTransaction} text={"Add Transaction"} />}
-                </div>
-                <div className="form-group">
-                    {<Button style={"btn btn-primary"} onClick={() => this.deleteTransaction} text={"Delete Transaction"} />}
-                </div>
-            </div>
-        )
-    }
 }
 
 ReactDOM.render(
